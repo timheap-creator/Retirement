@@ -1,0 +1,667 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Greg’s Retirement Dashboard</title>
+
+<style>
+    :root {
+        --bg: #050814;
+        --card: #0b1024;
+        --accent: #1e90ff;
+        --accent-soft: #3aa0ff;
+        --text: #e6ecff;
+        --muted: #9aa4c6;
+        --danger: #ff4b4b;
+        --success: #4caf50;
+        --warning: #ffc107;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+        font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+        background: radial-gradient(circle at top, #111633 0%, #050814 55%, #02030a 100%);
+        color: var(--text);
+        min-height: 100vh;
+        display: flex;
+        justify-content: center;
+        align-items: flex-start;
+        padding: 24px;
+    }
+    .dashboard {
+        width: 100%;
+        max-width: 1100px;
+        background: rgba(5, 8, 20, 0.95);
+        border-radius: 18px;
+        border: 1px solid rgba(30, 144, 255, 0.35);
+        box-shadow: 0 0 40px rgba(0, 0, 0, 0.8);
+        overflow: hidden;
+    }
+    .thin-blue-line {
+        height: 6px;
+        background: linear-gradient(90deg, #0b1024 0%, #1e90ff 50%, #0b1024 100%);
+        box-shadow: 0 0 12px rgba(30, 144, 255, 0.7);
+    }
+    .header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 18px 22px 10px;
+    }
+    .header-left {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+    }
+    .badge {
+        width: 46px;
+        height: 46px;
+        border-radius: 50%;
+        border: 2px solid var(--accent);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: radial-gradient(circle, #1e90ff 0%, #050814 60%);
+        box-shadow: 0 0 16px rgba(30, 144, 255, 0.7);
+        position: relative;
+    }
+    .badge::before {
+        content: "";
+        position: absolute;
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+        border: 2px solid rgba(5, 8, 20, 0.9);
+    }
+    .badge span {
+        font-size: 11px;
+        font-weight: 700;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+    }
+    .title-block h1 {
+        font-size: 20px;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+    }
+    .title-block p {
+        font-size: 12px;
+        color: var(--muted);
+    }
+    .header-right {
+        text-align: right;
+    }
+    .clock {
+        font-size: 18px;
+        font-weight: 600;
+    }
+    .date {
+        font-size: 12px;
+        color: var(--muted);
+    }
+    .greeting {
+        font-size: 12px;
+        color: var(--accent-soft);
+        margin-top: 4px;
+    }
+    .content {
+        display: grid;
+        grid-template-columns: minmax(0, 1.1fr) minmax(0, 1.2fr);
+        gap: 18px;
+        padding: 10px 22px 22px;
+    }
+    .card {
+        background: var(--card);
+        border-radius: 14px;
+        border: 1px solid rgba(30, 144, 255, 0.25);
+        padding: 14px 16px 16px;
+        position: relative;
+        overflow: hidden;
+    }
+    .card-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 10px;
+    }
+    .card-title {
+        font-size: 13px;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        color: var(--muted);
+    }
+    .card-icon {
+        font-size: 18px;
+    }
+    .ring-container {
+        display: flex;
+        align-items: center;
+        gap: 18px;
+    }
+    .ring-svg {
+        width: 150px;
+        height: 150px;
+    }
+    .ring-labels {
+        flex: 1;
+        font-size: 13px;
+    }
+    .ring-main {
+        font-size: 26px;
+        font-weight: 700;
+        margin-bottom: 4px;
+    }
+    .ring-sub {
+        font-size: 12px;
+        color: var(--muted);
+    }
+    .progress-bar {
+        width: 100%;
+        height: 8px;
+        border-radius: 999px;
+        background: #050814;
+        margin-top: 10px;
+        overflow: hidden;
+        border: 1px solid rgba(30, 144, 255, 0.4);
+    }
+    .progress-fill {
+        height: 100%;
+        width: 0%;
+        background: linear-gradient(90deg, #1e90ff, #3aa0ff);
+        box-shadow: 0 0 12px rgba(30, 144, 255, 0.8);
+        transition: width 0.4s ease-out;
+    }
+    .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 10px;
+        font-size: 12px;
+        margin-top: 8px;
+    }
+    .stat-label {
+        color: var(--muted);
+        font-size: 11px;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+    }
+    .stat-value {
+        font-size: 13px;
+        margin-top: 2px;
+    }
+    .stat-highlight {
+        color: var(--accent-soft);
+    }
+    .stat-danger {
+        color: var(--danger);
+    }
+    .stat-success {
+        color: var(--success);
+    }
+    .stat-warning {
+        color: var(--warning);
+    }
+    .pill-row {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 6px;
+        margin-top: 8px;
+    }
+    .pill {
+        font-size: 11px;
+        padding: 4px 8px;
+        border-radius: 999px;
+        border: 1px solid rgba(154, 164, 198, 0.6);
+        background: rgba(5, 8, 20, 0.9);
+        color: var(--muted);
+    }
+    .pill-accent {
+        border-color: rgba(30, 144, 255, 0.8);
+        color: var(--accent-soft);
+    }
+    .pill-warning {
+        border-color: rgba(255, 193, 7, 0.8);
+        color: var(--warning);
+    }
+    .pill-success {
+        border-color: rgba(76, 175, 80, 0.8);
+        color: var(--success);
+    }
+    .pill-danger {
+        border-color: rgba(255, 75, 75, 0.8);
+        color: var(--danger);
+    }
+    .footer {
+        padding: 8px 18px 12px;
+        font-size: 11px;
+        color: var(--muted);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+    .party-button {
+        font-size: 11px;
+        padding: 4px 10px;
+        border-radius: 999px;
+        border: 1px solid rgba(30, 144, 255, 0.7);
+        background: rgba(5, 8, 20, 0.9);
+        color: var(--accent-soft);
+        cursor: pointer;
+    }
+</style>
+</head>
+
+<body>
+<div class="dashboard">
+    <div class="thin-blue-line"></div>
+
+    <div class="header">
+        <div class="header-left">
+            <div class="badge"><span>GMP</span></div>
+            <div class="title-block">
+                <h1>Retirement Dashboard</h1>
+                <p>Greater Manchester Police · Coordinator</p>
+            </div>
+        </div>
+        <div class="header-right">
+            <div class="clock" id="clock"></div>
+            <div class="date" id="date"></div>
+            <div class="greeting" id="greeting"></div>
+        </div>
+    </div>
+
+    <div class="content">
+        <!-- LEFT SIDE -->
+        <div class="card">
+            <div class="card-header">
+                <div class="card-title">Career Progress</div>
+                <div class="card-icon">👮‍♂️</div>
+            </div>
+
+            <div class="ring-container">
+                <svg class="ring-svg" viewBox="0 0 140 140">
+                    <circle cx="70" cy="70" r="54" stroke="#111633" stroke-width="10" fill="none"/>
+                    <circle id="ring" cx="70" cy="70" r="54"
+                        stroke="#1e90ff" stroke-width="10" stroke-linecap="round"
+                        fill="none" stroke-dasharray="339.292" stroke-dashoffset="339.292"/>
+                    <text id="ring-percent" x="70" y="68" text-anchor="middle"
+                        fill="#e6ecff" font-size="20" font-weight="700">0%</text>
+                    <text id="ring-label" x="70" y="88" text-anchor="middle"
+                        fill="#9aa4c6" font-size="11">SERVICE COMPLETED</text>
+                </svg>
+
+                <div class="ring-labels">
+                    <div class="ring-main" id="career-main"></div>
+                    <div class="ring-sub" id="career-sub"></div>
+
+                    <div class="progress-bar">
+                        <div class="progress-fill" id="progress-fill"></div>
+                    </div>
+
+                    <div class="stats-grid">
+                        <div>
+                            <div class="stat-label">Time Served</div>
+                            <div class="stat-value stat-success" id="time-served"></div>
+                        </div>
+                        <div>
+                            <div class="stat-label">Time Remaining</div>
+                            <div class="stat-value stat-danger" id="time-remaining"></div>
+                        </div>
+                        <div>
+                            <div class="stat-label">Completed</div>
+                            <div class="stat-value stat-highlight" id="percent-completed"></div>
+                        </div>
+                        <div>
+                            <div class="stat-label">Remaining</div>
+                            <div class="stat-value stat-warning" id="percent-remaining"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pill-row">
+                <div class="pill pill-accent" id="retirement-days"></div>
+                <div class="pill pill-warning" id="retirement-hours"></div>
+                <div class="pill pill-success" id="retirement-mins"></div>
+                <div class="pill pill-danger" id="retirement-secs"></div>
+            </div>
+
+            <div class="pill-row">
+                <div class="pill pill-accent" id="weekly-quote"></div>
+            </div>
+        </div>
+
+        <!-- RIGHT SIDE -->
+        <div class="card">
+            <div class="card-header">
+                <div class="card-title">Shifts · Payday · Status</div>
+                <div class="card-icon">📅</div>
+            </div>
+
+            <div class="stats-grid">
+                <div>
+                    <div class="stat-label">Duty Status</div>
+                    <div class="stat-value" id="duty-status"></div>
+                </div>
+                <div>
+                    <div class="stat-label">Week Pattern</div>
+                    <div class="stat-value" id="week-pattern"></div>
+                </div>
+                <div>
+                    <div class="stat-label">Next Shift</div>
+                    <div class="stat-value stat-highlight" id="next-shift"></div>
+                </div>
+                <div>
+                    <div class="stat-label">Next Rest Day</div>
+                    <div class="stat-value stat-warning" id="next-rest"></div>
+                </div>
+                <div>
+                    <div class="stat-label">Shifts Remaining</div>
+                    <div class="stat-value stat-success" id="shifts-remaining"></div>
+                </div>
+                <div>
+                    <div class="stat-label">Hours Remaining</div>
+                    <div class="stat-value stat-danger" id="hours-remaining"></div>
+                </div>
+            </div>
+
+            <div class="pill-row">
+                <div class="pill pill-accent" id="payday-next"></div>
+                <div class="pill pill-warning" id="payday-days"></div>
+                <div class="pill pill-success" id="payday-hours"></div>
+                <div class="pill pill-danger" id="payday-mins"></div>
+            </div>
+
+            <div class="pill-row">
+                <div class="pill pill-success" id="motivation"></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="footer">
+        <span>Thin Blue Line · GMP · Service Start: 12/01/1998 08:00 · End: 28/06/2027 08:00</span>
+        <button class="party-button" id="party-btn">Party Mode</button>
+    </div>
+</div>
+
+<script>
+const careerStart = new Date(1998, 0, 12, 8, 0, 0);
+const careerEnd   = new Date(2027, 5, 28, 8, 0, 0);
+
+const weeklyQuotes = [
+    "Stay sharp, Greg.",
+    "Another week closer to the finish line.",
+    "Thin blue line — thick patience.",
+    "You’ve done harder weeks than this.",
+    "Every shift is one step closer.",
+    "Retirement is loading… slowly but surely.",
+    "Experience is your superpower.",
+    "You’re not tired — you’re seasoned."
+];
+
+function pad(n) { return n.toString().padStart(2, "0"); }
+
+function formatDate(d) {
+    return d.toLocaleDateString("en-GB", {
+        weekday: "short", year: "numeric", month: "short", day: "numeric"
+    });
+}
+
+function diffParts(ms) {
+    let totalSeconds = Math.floor(ms / 1000);
+    const seconds = totalSeconds % 60;
+    totalSeconds = Math.floor(totalSeconds / 60);
+    const minutes = totalSeconds % 60;
+    totalSeconds = Math.floor(totalSeconds / 60);
+    const hours = totalSeconds % 24;
+    let totalDays = Math.floor(totalSeconds / 24);
+
+    const years = Math.floor(totalDays / 365.25);
+    totalDays -= Math.floor(years * 365.25);
+    const months = Math.floor(totalDays / 30.4375);
+    totalDays -= Math.floor(months * 30.4375);
+    const days = totalDays;
+
+    return { years, months, days, hours, minutes, seconds };
+}
+
+function getISOWeek(date) {
+    const tmp = new Date(date.getTime());
+    tmp.setHours(0,0,0,0);
+    tmp.setDate(tmp.getDate() + 4 - (tmp.getDay() || 7));
+    const yearStart = new Date(tmp.getFullYear(),0,1);
+    return Math.ceil((((tmp - yearStart) / 86400000) + 1) / 7);
+}
+
+/* ⭐ FIX 1 — Greg is on WEEK 2 right now  
+   So we flip the logic so the dashboard matches reality */
+function isWeek1(date) {
+    return getISOWeek(date) % 2 === 1;  // odd weeks = Week 1, even = Week 2
+}
+
+function getShiftForDate(date) {
+    const day = date.getDay();
+    const week1 = isWeek1(date);
+
+    if (week1) {
+        if (day >= 1 && day <= 4) return { type: "Early", startHour: 7, endHour: 17 };
+    } else {
+        if (day >= 2 && day <= 5) return { type: "Late", startHour: 12, endHour: 22 };
+    }
+    return null;
+}
+
+function findNextShift(now) {
+    let probe = new Date(now.getTime());
+    for (let i = 0; i < 21; i++) {
+        const shift = getShiftForDate(probe);
+        if (shift) {
+            const start = new Date(probe.getFullYear(), probe.getMonth(), probe.getDate(), shift.startHour, 0, 0);
+            const end   = new Date(probe.getFullYear(), probe.getMonth(), probe.getDate(), shift.endHour, 0, 0);
+
+            if (probe.toDateString() === now.toDateString()) {
+                if (now < start) return { date: probe, shift, start, end };
+                if (now < end) return { date: probe, shift, start, end };
+            } else if (probe > now) {
+                return { date: probe, shift, start, end };
+            }
+        }
+        probe.setDate(probe.getDate() + 1);
+    }
+    return null;
+}
+
+function findNextRestOrWeekend(now) {
+    let probe = new Date(now.getTime());
+    for (let i = 0; i < 14; i++) {
+        const shift = getShiftForDate(probe);
+        const day = probe.getDay();
+        if (!shift || day === 0 || day === 6) {
+            return probe;
+        }
+        probe.setDate(probe.getDate() + 1);
+    }
+    return null;
+}
+
+function countFutureShiftsAndHours(now) {
+    let probe = new Date(now.getTime());
+    probe.setHours(0,0,0,0);
+    let shifts = 0;
+    let hours = 0;
+
+    while (probe <= careerEnd) {
+        const shift = getShiftForDate(probe);
+        if (shift) {
+            shifts++;
+            hours += (shift.endHour - shift.startHour);
+        }
+        probe.setDate(probe.getDate() + 1);
+    }
+    return { shifts, hours };
+}
+
+function nextPayday(now) {
+    const year = now.getFullYear();
+    const month = now.getMonth();
+    let payday = new Date(year, month, 15, 0, 0, 0);
+    if (now > payday) {
+        payday = new Date(year, month + 1, 15, 0, 0, 0);
+    }
+    return payday;
+}
+
+function update() {
+    const now = new Date();
+
+    document.getElementById("clock").textContent =
+        `${pad(now.getHours())}:${pad(now.getMinutes())}:${pad(now.getSeconds())}`;
+    document.getElementById("date").textContent = formatDate(now);
+
+    const hour = now.getHours();
+    let greet = "On duty soon, Greg.";
+    if (hour < 6) greet = "Night shift brain, but you’re off.";
+    else if (hour < 12) greet = "Good morning, Greg. Another week closer.";
+    else if (hour < 18) greet = "Good afternoon, Greg.";
+    else greet = "Good evening, Greg.";
+    document.getElementById("greeting").textContent = greet;
+
+    const totalMs = careerEnd - careerStart;
+    const elapsedMs = Math.max(0, now - careerStart);
+    const remainingMs = Math.max(0, careerEnd - now);
+    const pct = Math.min(100, (elapsedMs / totalMs) * 100);
+    const pctRemaining = 100 - pct;
+
+    const ring = document.getElementById("ring");
+    const circumference = 2 * Math.PI * 54;
+    const offset = circumference * (1 - pct / 100);
+    ring.style.strokeDasharray = circumference.toFixed(3);
+    ring.style.strokeDashoffset = offset.toFixed(3);
+
+    document.getElementById("ring-percent").textContent = `${pct.toFixed(1)}%`;
+    document.getElementById("progress-fill").style.width = `${pct.toFixed(1)}%`;
+
+    const servedParts = diffParts(elapsedMs);
+    const remainingParts = diffParts(remainingMs);
+
+    document.getElementById("career-main").textContent =
+        `${pct.toFixed(1)}% of Service Completed`;
+    document.getElementById("career-sub").textContent =
+        `Service Start: 12 Jan 1998 · Service End: 28 Jun 2027`;
+
+    document.getElementById("time-served").textContent =
+        `${servedParts.years}y ${servedParts.months}m ${servedParts.days}d ` +
+        `${servedParts.hours}h ${servedParts.minutes}m ${servedParts.seconds}s`;
+
+    document.getElementById("time-remaining").textContent =
+        `${remainingParts.years}y ${remainingParts.months}m ${remainingParts.days}d ` +
+        `${remainingParts.hours}h ${remainingParts.minutes}m ${remainingParts.seconds}s`;
+
+    document.getElementById("percent-completed").textContent =
+        `${pct.toFixed(2)}% completed`;
+    document.getElementById("percent-remaining").textContent =
+        `${pctRemaining.toFixed(2)}% remaining`;
+
+    const remainingDays = Math.ceil(remainingMs / 86400000);  /* ⭐ FIX 2 — use CEIL */
+    const remainingHours = Math.floor(remainingMs / 3600000);
+    const remainingMinutes = Math.floor(remainingMs / 60000);
+    const remainingSeconds = Math.floor(remainingMs / 1000);
+
+    document.getElementById("retirement-days").textContent =
+        `Retirement in ${remainingDays} days`;
+    document.getElementById("retirement-hours").textContent =
+        `${remainingHours} hours left`;
+    document.getElementById("retirement-mins").textContent =
+        `${remainingMinutes} minutes left`;
+    document.getElementById("retirement-secs").textContent =
+        `${remainingSeconds} seconds left`;
+
+    const weekNumber = getISOWeek(now);
+    const quote = weeklyQuotes[weekNumber % weeklyQuotes.length];
+    document.getElementById("weekly-quote").textContent = quote;
+
+    const todayShift = getShiftForDate(now);
+    let dutyStatus = "Off duty · Rest day";
+    if (todayShift) {
+        const start = new Date(now.getFullYear(), now.getMonth(), now.getDate(), todayShift.startHour, 0, 0);
+        const end   = new Date(now.getFullYear(), now.getMonth(), now.getDate(), todayShift.endHour, 0, 0);
+
+        if (now < start) dutyStatus = `Off duty · ${todayShift.type} at ${pad(todayShift.startHour)}:00`;
+        else if (now >= start && now <= end) dutyStatus = `On duty · ${todayShift.type} shift`;
+        else dutyStatus = `Shift finished · ${todayShift.type}`;
+    }
+    document.getElementById("duty-status").textContent = dutyStatus;
+
+    document.getElementById("week-pattern").textContent =
+        isWeek1(now)
+            ? "Week 1 · Earlies (Mon–Thu 07:00–17:00)"
+            : "Week 2 · Lates (Tue–Fri 12:00–22:00)";
+
+    const next = findNextShift(now);
+    if (next) {
+        const d = next.date;
+        const label = `${next.shift.type} · ${d.toLocaleDateString("en-GB", {
+            weekday: "short", day: "2-digit", month: "short"
+        })} · ${pad(next.shift.startHour)}:00–${pad(next.shift.endHour)}:00`;
+        document.getElementById("next-shift").textContent = label;
+    } else {
+        document.getElementById("next-shift").textContent = "No more shifts before retirement.";
+    }
+
+    const rest = findNextRestOrWeekend(now);
+    if (rest) {
+        const diffDays = Math.round((rest - now) / 86400000);
+        const label = `${rest.toLocaleDateString("en-GB", {
+            weekday: "short", day: "2-digit", month: "short"
+        })} · in ${diffDays} day(s)`;
+        document.getElementById("next-rest").textContent = label;
+    }
+
+    const future = countFutureShiftsAndHours(now);
+    document.getElementById("shifts-remaining").textContent =
+        `${future.shifts} shifts left`;
+    document.getElementById("hours-remaining").textContent =
+        `${future.hours} duty hours left`;
+
+    const nextPd = nextPayday(now);
+    const pdMs = nextPd - now;
+
+    document.getElementById("payday-next").textContent =
+        `Next payday: ${nextPd.toLocaleDateString("en-GB")}`;
+
+    /* ⭐ FIX 2 — CEIL for correct “days until payday” */
+    document.getElementById("payday-days").textContent =
+        `${Math.ceil(pdMs / 86400000)} days`;
+
+    document.getElementById("payday-hours").textContent =
+        `${Math.floor(pdMs / 3600000)} hours`;
+    document.getElementById("payday-mins").textContent =
+        `${Math.floor(pdMs / 60000)} minutes`;
+
+    let motivation = "Another week closer, Greg.";
+    if (pct > 90) motivation = "Final stretch now.";
+    if (pct > 95) motivation = "You can almost taste the brew.";
+    if (pct >= 99.5) motivation = "Last lap now.";
+    document.getElementById("motivation").textContent = motivation;
+
+    if (partyMode) {
+        document.body.style.background =
+            "radial-gradient(circle at top, #1e90ff 0%, #050814 45%, #02030a 100%)";
+    } else {
+        document.body.style.background =
+            "radial-gradient(circle at top, #111633 0%, #050814 55%, #02030a 100%)";
+    }
+}
+
+let partyMode = false;
+document.getElementById("party-btn").addEventListener("click", () => {
+    partyMode = !partyMode;
+    document.getElementById("party-btn").textContent =
+        partyMode ? "Party Mode: ON" : "Party Mode";
+});
+
+update();
+setInterval(update, 1000);
+</script>
+
+</body>
+</html>
+
