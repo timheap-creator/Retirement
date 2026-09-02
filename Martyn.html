@@ -1,0 +1,712 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Retirement Dashboard – Martyn</title>
+    <style>
+        :root {
+            --bg: #0b1020;
+            --card-bg: #141a33;
+            --accent: #4db5ff;
+            --accent2: #ffb54d;
+            --accent3: #4dff88;
+            --text: #f5f7ff;
+            --muted: #9aa4c6;
+            --danger: #ff4d6a;
+            --success: #4dff88;
+            --border: #1f2640;
+            --ring-bg: #1b2340;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+            background: radial-gradient(circle at top, #1b2340 0, #050814 55%, #02030a 100%);
+            color: var(--text);
+            min-height: 100vh;
+            padding: 24px;
+        }
+
+        .dashboard {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            gap: 16px;
+            margin-bottom: 24px;
+            align-items: center;
+        }
+
+        .header-left h1 {
+            font-size: 1.8rem;
+            letter-spacing: 0.05em;
+        }
+
+        .header-left p {
+            color: var(--muted);
+            font-size: 0.95rem;
+        }
+
+        .header-right {
+            text-align: right;
+        }
+
+        .header-right .date {
+            font-size: 0.95rem;
+            color: var(--muted);
+        }
+
+        .header-right .time {
+            font-size: 1.2rem;
+            font-weight: 600;
+        }
+
+        .header-right .greeting {
+            font-size: 0.9rem;
+            color: var(--accent);
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: 2fr 1.4fr;
+            gap: 20px;
+        }
+
+        .card {
+            background: linear-gradient(145deg, #11172b, #181f38);
+            border-radius: 16px;
+            padding: 16px 18px;
+            border: 1px solid var(--border);
+            box-shadow: 0 18px 40px rgba(0, 0, 0, 0.55);
+        }
+
+        .card h2 {
+            font-size: 1.1rem;
+            margin-bottom: 10px;
+            letter-spacing: 0.04em;
+            text-transform: uppercase;
+            color: var(--muted);
+        }
+
+        .card h3 {
+            font-size: 1rem;
+            margin-bottom: 8px;
+            color: var(--accent);
+        }
+
+        .card-row {
+            display: flex;
+            justify-content: space-between;
+            gap: 12px;
+            margin-bottom: 8px;
+            font-size: 0.9rem;
+        }
+
+        .label {
+            color: var(--muted);
+        }
+
+        .value {
+            font-weight: 600;
+        }
+
+        .pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 4px 10px;
+            border-radius: 999px;
+            background: rgba(77, 181, 255, 0.08);
+            border: 1px solid rgba(77, 181, 255, 0.35);
+            font-size: 0.8rem;
+            color: var(--accent);
+        }
+
+        .pill-danger {
+            background: rgba(255, 77, 106, 0.08);
+            border-color: rgba(255, 77, 106, 0.35);
+            color: var(--danger);
+        }
+
+        .pill-success {
+            background: rgba(77, 255, 136, 0.08);
+            border-color: rgba(77, 255, 136, 0.35);
+            color: var(--success);
+        }
+
+        .ring-container {
+            display: flex;
+            flex-direction: column;
+            gap: 18px;
+        }
+
+        .ring-block {
+            display: flex;
+            gap: 18px;
+            align-items: center;
+        }
+
+        .ring {
+            width: 180px;
+            height: 180px;
+            border-radius: 50%;
+            background: conic-gradient(var(--accent) 0deg, var(--accent) 0deg, var(--ring-bg) 0deg);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+
+        .ring-inner {
+            width: 140px;
+            height: 140px;
+            border-radius: 50%;
+            background: #0b1020;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 8px;
+        }
+
+        .ring-label {
+            font-size: 0.8rem;
+            color: var(--muted);
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+        }
+
+        .ring-percent {
+            font-size: 1.6rem;
+            font-weight: 700;
+        }
+
+        .ring-sub {
+            font-size: 0.8rem;
+            color: var(--muted);
+        }
+
+        .ring-caption {
+            font-size: 0.85rem;
+            color: var(--muted);
+            margin-top: 4px;
+        }
+
+        .ring-details {
+            flex: 1;
+            font-size: 0.9rem;
+        }
+
+        .ring-details-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 4px;
+        }
+
+        .ring-details-row span:first-child {
+            color: var(--muted);
+        }
+
+        .ring-details-row span:last-child {
+            font-weight: 600;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 10px;
+            margin-top: 8px;
+        }
+
+        .stat {
+            background: #10162a;
+            border-radius: 10px;
+            padding: 8px;
+            border: 1px solid #1c2340;
+            font-size: 0.8rem;
+        }
+
+        .stat-label {
+            color: var(--muted);
+            margin-bottom: 2px;
+        }
+
+        .stat-value {
+            font-weight: 600;
+        }
+
+        .quote {
+            font-style: italic;
+            font-size: 0.9rem;
+            color: var(--muted);
+            margin-top: 6px;
+        }
+
+        .footer-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 10px;
+            font-size: 0.85rem;
+        }
+
+        .party-btn {
+            padding: 6px 12px;
+            border-radius: 999px;
+            border: 1px solid var(--accent2);
+            background: rgba(255, 181, 77, 0.08);
+            color: var(--accent2);
+            font-size: 0.8rem;
+            cursor: pointer;
+        }
+
+        .party-btn:hover {
+            background: rgba(255, 181, 77, 0.18);
+        }
+
+        @keyframes party {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        .party-mode {
+            background: linear-gradient(135deg, #ff4d6a, #ffb54d, #4dff88, #4db5ff);
+            background-size: 300% 300%;
+            animation: party 6s ease infinite;
+        }
+
+        @media (max-width: 900px) {
+            .grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 600px) {
+            .header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            .header-right {
+                text-align: left;
+            }
+            .ring-block {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            .ring {
+                margin: 0 auto;
+            }
+        }
+    </style>
+</head>
+<body>
+<div class="dashboard">
+    <header class="header">
+        <div class="header-left">
+            <h1>Retirement Dashboard – Martyn</h1>
+            <p>Greater Manchester Police · Sergeant</p>
+        </div>
+        <div class="header-right">
+            <div class="date" id="currentDate"></div>
+            <div class="time" id="currentTime"></div>
+            <div class="greeting" id="greeting"></div>
+        </div>
+    </header>
+
+    <main class="grid">
+        <!-- LEFT: Duty & Service -->
+        <section class="card">
+            <h2>Duty & Service Overview</h2>
+
+            <div class="card-row">
+                <span class="label">Service Start</span>
+                <span class="value">01 September 2003 · 08:00</span>
+            </div>
+
+            <div class="card-row">
+                <span class="label">Current Week</span>
+                <span class="value pill pill-success">Week 1</span>
+            </div>
+
+            <div class="card-row">
+                <span class="label">Duty Status</span>
+                <span class="value" id="dutyStatus">Calculating…</span>
+            </div>
+
+            <div class="card-row">
+                <span class="label">Next Shift</span>
+                <span class="value" id="nextShift">Calculating…</span>
+            </div>
+
+            <div class="card-row">
+                <span class="label">Next Rest Day</span>
+                <span class="value" id="nextRestDay">Calculating…</span>
+            </div>
+
+            <hr style="border-color: #1c2340; margin: 12px 0;">
+
+            <h3>Service Time So Far</h3>
+            <div class="card-row">
+                <span class="label">Years in service</span>
+                <span class="value" id="serviceYears">–</span>
+            </div>
+            <div class="card-row">
+                <span class="label">Total days served</span>
+                <span class="value" id="serviceDays">–</span>
+            </div>
+            <div class="card-row">
+                <span class="label">Total hours served</span>
+                <span class="value" id="serviceHours">–</span>
+            </div>
+
+            <hr style="border-color: #1c2340; margin: 12px 0;">
+
+            <h3>Payday Countdown</h3>
+            <div class="card-row">
+                <span class="label">Next Payday</span>
+                <span class="value" id="nextPayday">–</span>
+            </div>
+            <div class="card-row">
+                <span class="label">Days until payday</span>
+                <span class="value" id="daysToPayday">–</span>
+            </div>
+
+            <div class="quote" id="weeklyQuote">
+                Loading weekly quote…
+            </div>
+
+            <div class="footer-row">
+                <span class="label">Party Mode</span>
+                <button class="party-btn" id="partyToggle">Toggle Party Mode</button>
+            </div>
+        </section>
+
+        <!-- RIGHT: Three Retirement Rings -->
+        <section class="card">
+            <h2>Retirement Progress – 50 / 52 / 55</h2>
+
+            <div class="ring-container">
+                <!-- Ring 1: Retirement at 50 -->
+                <div class="ring-block">
+                    <div class="ring" id="ring50">
+                        <div class="ring-inner">
+                            <div class="ring-label">Retirement at 50</div>
+                            <div class="ring-percent" id="percent50">0%</div>
+                            <div class="ring-sub" id="sub50">Calculating…</div>
+                        </div>
+                    </div>
+                    <div class="ring-details">
+                        <div class="ring-caption">Target: 23 July 2031 · 08:00</div>
+                        <div class="ring-details-row">
+                            <span>Time remaining</span>
+                            <span id="timeRemaining50">–</span>
+                        </div>
+                        <div class="ring-details-row">
+                            <span>Total days remaining</span>
+                            <span id="daysRemaining50">–</span>
+                        </div>
+                        <div class="ring-details-row">
+                            <span>Total hours remaining</span>
+                            <span id="hoursRemaining50">–</span>
+                        </div>
+                        <div class="stats-grid">
+                            <div class="stat">
+                                <div class="stat-label">% completed</div>
+                                <div class="stat-value" id="statCompleted50">–</div>
+                            </div>
+                            <div class="stat">
+                                <div class="stat-label">% remaining</div>
+                                <div class="stat-value" id="statRemaining50">–</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Ring 2: Retirement at 52 -->
+                <div class="ring-block">
+                    <div class="ring" id="ring52">
+                        <div class="ring-inner">
+                            <div class="ring-label">Retirement at 52</div>
+                            <div class="ring-percent" id="percent52">0%</div>
+                            <div class="ring-sub" id="sub52">Calculating…</div>
+                        </div>
+                    </div>
+                    <div class="ring-details">
+                        <div class="ring-caption">Target: 23 July 2033 · 08:00</div>
+                        <div class="ring-details-row">
+                            <span>Time remaining</span>
+                            <span id="timeRemaining52">–</span>
+                        </div>
+                        <div class="ring-details-row">
+                            <span>Total days remaining</span>
+                            <span id="daysRemaining52">–</span>
+                        </div>
+                        <div class="ring-details-row">
+                            <span>Total hours remaining</span>
+                            <span id="hoursRemaining52">–</span>
+                        </div>
+                        <div class="stats-grid">
+                            <div class="stat">
+                                <div class="stat-label">% completed</div>
+                                <div class="stat-value" id="statCompleted52">–</div>
+                            </div>
+                            <div class="stat">
+                                <div class="stat-label">% remaining</div>
+                                <div class="stat-value" id="statRemaining52">–</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Ring 3: Retirement at 55 -->
+                <div class="ring-block">
+                    <div class="ring" id="ring55">
+                        <div class="ring-inner">
+                            <div class="ring-label">Retirement at 55</div>
+                            <div class="ring-percent" id="percent55">0%</div>
+                            <div class="ring-sub" id="sub55">Calculating…</div>
+                        </div>
+                    </div>
+                    <div class="ring-details">
+                        <div class="ring-caption">Target: 23 July 2036 · 08:00</div>
+                        <div class="ring-details-row">
+                            <span>Time remaining</span>
+                            <span id="timeRemaining55">–</span>
+                        </div>
+                        <div class="ring-details-row">
+                            <span>Total days remaining</span>
+                            <span id="daysRemaining55">–</span>
+                        </div>
+                        <div class="ring-details-row">
+                            <span>Total hours remaining</span>
+                            <span id="hoursRemaining55">–</span>
+                        </div>
+                        <div class="stats-grid">
+                            <div class="stat">
+                                <div class="stat-label">% completed</div>
+                                <div class="stat-value" id="statCompleted55">–</div>
+                            </div>
+                            <div class="stat">
+                                <div class="stat-label">% remaining</div>
+                                <div class="stat-value" id="statRemaining55">–</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+</div>
+
+<script>
+    // --- Core dates ---
+    const serviceStart = new Date(2003, 8, 1, 8, 0); // 1 Sep 2003 08:00
+    const retirement50 = new Date(2031, 6, 23, 8, 0); // 23 Jul 2031 08:00
+    const retirement52 = new Date(2033, 6, 23, 8, 0); // 23 Jul 2033 08:00
+    const retirement55 = new Date(2036, 6, 23, 8, 0); // 23 Jul 2036 08:00
+
+    // --- Clock & greeting ---
+    function updateClock() {
+        const now = new Date();
+        const dateEl = document.getElementById('currentDate');
+        const timeEl = document.getElementById('currentTime');
+        const greetingEl = document.getElementById('greeting');
+
+        const dateOptions = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+        dateEl.textContent = now.toLocaleDateString('en-GB', dateOptions);
+
+        const timeOptions = { hour: '2-digit', minute: '2-digit', second: '2-digit' };
+        timeEl.textContent = now.toLocaleTimeString('en-GB', timeOptions);
+
+        const hour = now.getHours();
+        let greeting;
+        if (hour < 6) greeting = "On nights – keep going, Martyn.";
+        else if (hour < 12) greeting = "Morning, Martyn.";
+        else if (hour < 18) greeting = "Afternoon, Martyn.";
+        else greeting = "Evening, Martyn.";
+
+        greetingEl.textContent = greeting;
+    }
+
+    setInterval(updateClock, 1000);
+    updateClock();
+
+    // --- Service time so far ---
+    function updateServiceStats() {
+        const now = new Date();
+        const diffMs = now - serviceStart;
+        const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+        const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
+        const diffYears = diffDays / 365.25;
+
+        document.getElementById('serviceYears').textContent = diffYears.toFixed(1) + " years";
+        document.getElementById('serviceDays').textContent = diffDays.toLocaleString('en-GB');
+        document.getElementById('serviceHours').textContent = diffHours.toLocaleString('en-GB');
+    }
+
+    updateServiceStats();
+
+    // --- Payday (15th of each month) ---
+function updatePayday() {
+    const now = new Date();
+    let payday = new Date(now.getFullYear(), now.getMonth(), 15, 0, 0);
+
+    // If today is past the 15th, move to next month’s 15th
+    if (now > payday) {
+        payday = new Date(now.getFullYear(), now.getMonth() + 1, 15, 0, 0);
+    }
+
+    const diffMs = payday - now;
+    const diffDays = Math.ceil(diffMs / (1000 * 60 * 60 * 24));
+
+    document.getElementById('nextPayday').textContent =
+        payday.toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' });
+    document.getElementById('daysToPayday').textContent = diffDays + " days";
+}
+updatePayday();
+
+
+    // --- Weekly quote ---
+    const quotes = [
+        "Every shift is one step closer to the good stuff.",
+        "You don’t have to love every day – just don’t quit.",
+        "Future you is already proud of present you.",
+        "The job is temporary. The stories are forever.",
+        "You’re not counting down to the end – you’re counting up to freedom."
+    ];
+
+    function setWeeklyQuote() {
+        const now = new Date();
+        const weekNumber = Math.floor((now - new Date(now.getFullYear(), 0, 1)) / (7 * 24 * 60 * 60 * 1000));
+        const quote = quotes[weekNumber % quotes.length];
+        document.getElementById('weeklyQuote').textContent = quote;
+    }
+
+    setWeeklyQuote();
+
+    // --- Duty status (Week 1 logic – improved) ---
+    function updateDutyStatus() {
+        const now = new Date();
+        const day = now.getDay(); // 0 = Sunday, 1 = Monday...
+        const hour = now.getHours();
+
+        let status = "Off duty";
+        let nextShift = "–";
+        let nextRest = "–";
+
+        // Week 1 pattern: Mon–Thu 07:00–17:00 on duty, Fri–Sun rest
+        const isDutyDay = (day >= 1 && day <= 4);
+        const shiftStart = 7;
+        const shiftEnd = 17;
+
+        if (isDutyDay) {
+            if (hour < shiftStart) {
+                status = "On duty today (not started yet)";
+                nextShift = "Today · 07:00–17:00";
+                nextRest = "Friday";
+            } else if (hour >= shiftStart && hour < shiftEnd) {
+                status = "On duty";
+                nextShift = "Tomorrow · 07:00–17:00";
+                nextRest = (day === 4) ? "Friday (tomorrow)" : "Friday";
+            } else {
+                status = "Off duty (today’s shift finished)";
+                nextShift = (day === 4) ? "Next Monday · 07:00–17:00" : "Tomorrow · 07:00–17:00";
+                nextRest = "Friday";
+            }
+        } else {
+            // Rest days: Fri–Sun
+            status = "Rest day";
+            nextRest = "Today";
+            const daysUntilMonday = (8 - day) % 7;
+            const nextMonday = new Date(now);
+            nextMonday.setDate(now.getDate() + daysUntilMonday);
+            nextShift = `Monday ${nextMonday.toLocaleDateString('en-GB')} · 07:00–17:00`;
+        }
+
+        document.getElementById('dutyStatus').textContent = status;
+        document.getElementById('nextShift').textContent = nextShift;
+        document.getElementById('nextRestDay').textContent = nextRest;
+    }
+
+    updateDutyStatus();
+
+    // --- Retirement ring helpers ---
+    function formatTimeRemaining(ms) {
+        if (ms <= 0) return "Reached";
+
+        const totalSeconds = Math.floor(ms / 1000);
+        const years = Math.floor(totalSeconds / (365.25 * 24 * 3600));
+        const months = Math.floor((totalSeconds % (365.25 * 24 * 3600)) / (30 * 24 * 3600));
+        const days = Math.floor((totalSeconds % (30 * 24 * 3600)) / (24 * 3600));
+        const hours = Math.floor((totalSeconds % (24 * 3600)) / 3600);
+        const minutes = Math.floor((totalSeconds % 3600) / 60);
+
+        return `${years}y ${months}m ${days}d ${hours}h ${minutes}m`;
+    }
+
+    function updateRing(serviceStart, retirementDate, ringId, percentId, subId, timeId, daysId, hoursId, statCompId, statRemId) {
+        const now = new Date();
+        const totalMs = retirementDate - serviceStart;
+        const elapsedMs = now - serviceStart;
+        const remainingMs = retirementDate - now;
+
+        const percent = Math.max(0, Math.min(100, (elapsedMs / totalMs) * 100));
+        const daysRemaining = Math.max(0, Math.floor(remainingMs / (1000 * 60 * 60 * 24)));
+        const hoursRemaining = Math.max(0, Math.floor(remainingMs / (1000 * 60 * 60)));
+
+        const ring = document.getElementById(ringId);
+        ring.style.background = `conic-gradient(var(--accent) 0deg, var(--accent) ${percent * 3.6}deg, var(--ring-bg) ${percent * 3.6}deg)`;
+
+        document.getElementById(percentId).textContent = percent.toFixed(1) + "%";
+        document.getElementById(subId).textContent = remainingMs <= 0 ? "Retirement reached" : "Counting down…";
+
+        document.getElementById(timeId).textContent = formatTimeRemaining(remainingMs);
+        document.getElementById(daysId).textContent = daysRemaining.toLocaleString('en-GB');
+        document.getElementById(hoursId).textContent = hoursRemaining.toLocaleString('en-GB');
+
+        document.getElementById(statCompId).textContent = percent.toFixed(1) + "%";
+        document.getElementById(statRemId).textContent = (100 - percent).toFixed(1) + "%";
+    }
+
+    function updateAllRings() {
+        updateRing(
+            serviceStart, retirement50,
+            "ring50", "percent50", "sub50",
+            "timeRemaining50", "daysRemaining50", "hoursRemaining50",
+            "statCompleted50", "statRemaining50"
+        );
+        updateRing(
+            serviceStart, retirement52,
+            "ring52", "percent52", "sub52",
+            "timeRemaining52", "daysRemaining52", "hoursRemaining52",
+            "statCompleted52", "statRemaining52"
+        );
+        updateRing(
+            serviceStart, retirement55,
+            "ring55", "percent55", "sub55",
+            "timeRemaining55", "daysRemaining55", "hoursRemaining55",
+            "statCompleted55", "statRemaining55"
+        );
+    }
+
+    setInterval(updateAllRings, 1000);
+    updateAllRings();
+
+    // --- Party mode toggle ---
+    const partyToggle = document.getElementById('partyToggle');
+    partyToggle.addEventListener('click', () => {
+        document.body.classList.toggle('party-mode');
+    });
+</script>
+</body>
+</html>
