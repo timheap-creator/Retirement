@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Retirement Dashboards</title>
+
+<style>
+    :root {
+        --bg1: #1b2340;
+        --bg2: #050814;
+        --bg3: #02030a;
+        --text: #f5f7ff;
+        --muted: #9aa4c6;
+        --accent: #4db5ff;
+        --accent2: #ffb54d;
+        --card-bg1: #11172b;
+        --card-bg2: #181f38;
+        --border: #1f2640;
+    }
+
+    body {
+        font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+        background: radial-gradient(circle at top, var(--bg1) 0%, var(--bg2) 55%, var(--bg3) 100%);
+        color: var(--text);
+        padding: 40px;
+        font-size: 18px;
+    }
+
+    h1 {
+        text-align: center;
+        font-size: 3rem;
+        margin-bottom: 40px;
+        letter-spacing: 0.05em;
+        color: var(--accent);
+        text-shadow: 0 0 12px rgba(77,181,255,0.4);
+    }
+
+    .container {
+        max-width: 900px;
+        margin: 0 auto;
+    }
+
+    .card {
+        background: linear-gradient(145deg, var(--card-bg1), var(--card-bg2));
+        padding: 22px;
+        border-radius: 16px;
+        margin-bottom: 24px;
+        border: 1px solid var(--border);
+        box-shadow: 0 10px 25px rgba(0,0,0,0.4);
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 18px 40px rgba(0,0,0,0.55);
+    }
+
+    a {
+        color: var(--accent);
+        text-decoration: none;
+        font-weight: 600;
+        font-size: 1.3rem;
+    }
+
+    a:hover {
+        color: var(--accent2);
+    }
+
+    footer {
+        text-align: center;
+        margin-top: 40px;
+        color: var(--muted);
+        font-size: 1rem;
+    }
+</style>
+
+</head>
+<body>
+
+<h1>Retirement Dashboards</h1>
+
+<div class="container">
+
+    <div class="card">
+        <a href="greg.html">Greg’s Dashboard</a>
+    </div>
+
+    <div class="card">
+        <a href="martyn.html">Martyn’s Dashboard</a>
+    </div>
+
+    <div class="card">
+        <a href="rick.html">Rick’s Dashboard</a>
+    </div>
+
+    <div class="card">
+        <a href="tim.html">Tim’s Dashboard</a>
+    </div>
+
+</div>
+
+<footer>
+    © 2026 Tim Heap
+</footer>
+
+</body>
+</html>
