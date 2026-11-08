@@ -1,0 +1,694 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Kev's Retirement Dashboard</title>
+
+<style>
+    :root {
+        --bg: #050814;
+        --card: #0b1024;
+        --accent: #1e90ff;
+        --accent-soft: #3aa0ff;
+        --text: #e6ecff;
+        --muted: #9aa4c6;
+        --danger: #ff4b4b;
+        --success: #4caf50;
+        --warning: #ffc107;
+    }
+
+    * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+    }
+
+    body {
+        font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+        background: radial-gradient(circle at top, #111633 0%, #050814 55%, #02030a 100%);
+        color: var(--text);
+        min-height: 100vh;
+        display: flex;
+        justify-content: center;
+        align-items: flex-start;
+        padding: 24px;
+    }
+
+    .dashboard {
+        width: 100%;
+        max-width: 1300px;
+        background: rgba(5, 8, 20, 0.95);
+        border-radius: 18px;
+        border: 1px solid rgba(30, 144, 255, 0.35);
+        box-shadow: 0 0 40px rgba(0, 0, 0, 0.8);
+        overflow: hidden;
+    }
+
+    .thin-blue-line {
+        height: 6px;
+        background: linear-gradient(90deg, #0b1024 0%, #1e90ff 50%, #0b1024 100%);
+        box-shadow: 0 0 12px rgba(30, 144, 255, 0.7);
+    }
+
+    .header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 18px 22px 10px;
+    }
+
+    .header-left {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+    }
+
+    .badge {
+        width: 46px;
+        height: 46px;
+        border-radius: 50%;
+        border: 2px solid var(--accent);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: radial-gradient(circle, #1e90ff 0%, #050814 60%);
+        box-shadow: 0 0 16px rgba(30, 144, 255, 0.7);
+        position: relative;
+    }
+
+    .badge::before {
+        content: "";
+        position: absolute;
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+        border: 2px solid rgba(5, 8, 20, 0.9);
+    }
+
+    .badge span {
+        font-size: 11px;
+        font-weight: 700;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+    }
+
+    .title-block h1 {
+        font-size: 20px;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+    }
+
+    .title-block p {
+        font-size: 12px;
+        color: var(--muted);
+    }
+
+    .header-right {
+        text-align: right;
+    }
+
+    .clock {
+        font-size: 18px;
+        font-weight: 600;
+    }
+
+    .date {
+        font-size: 12px;
+        color: var(--muted);
+    }
+
+    .greeting {
+        font-size: 12px;
+        color: var(--accent-soft);
+        margin-top: 4px;
+    }
+
+    .content {
+        display: grid;
+        grid-template-columns: minmax(0, 1.1fr) minmax(0, 1.2fr);
+        gap: 18px;
+        padding: 10px 22px 22px;
+    }
+
+  .card {
+    background: var(--card);
+    border-radius: 14px;
+    border: 1px solid rgba(30, 144, 255, 0.25);
+    padding: 14px 16px 24px;
+    position: relative;
+    overflow: visible;
+    min-height: 420px;
+}
+
+    .card-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 10px;
+    }
+
+    .card-title {
+        font-size: 13px;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        color: var(--muted);
+    }
+
+    .card-icon {
+        font-size: 18px;
+    }
+
+    .ring-container {
+        display: flex;
+        align-items: center;
+        gap: 18px;
+    }
+
+    .ring-svg {
+        width: 150px;
+        height: 150px;
+    }
+
+    .ring-labels {
+        flex: 1;
+        font-size: 13px;
+    }
+
+    .ring-main {
+        font-size: 26px;
+        font-weight: 700;
+        margin-bottom: 4px;
+    }
+
+    .ring-sub {
+        font-size: 12px;
+        color: var(--muted);
+    }
+
+    .progress-bar {
+        width: 100%;
+        height: 8px;
+        border-radius: 999px;
+        background: #050814;
+        margin-top: 10px;
+        overflow: hidden;
+        border: 1px solid rgba(30, 144, 255, 0.4);
+    }
+
+    .progress-fill {
+        height: 100%;
+        width: 0%;
+        background: linear-gradient(90deg, #1e90ff, #3aa0ff);
+        box-shadow: 0 0 12px rgba(30, 144, 255, 0.8);
+        transition: width 0.4s ease-out;
+    }
+
+    .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 10px;
+        font-size: 12px;
+        margin-top: 8px;
+    }
+
+    .stat-label {
+        color: var(--muted);
+        font-size: 11px;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+    }
+
+    .stat-value {
+        font-size: 13px;
+        margin-top: 2px;
+    }
+
+    .stat-highlight { color: var(--accent-soft); }
+    .stat-danger { color: var(--danger); }
+    .stat-success { color: var(--success); }
+    .stat-warning { color: var(--warning); }
+
+    .pill-row {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 6px;
+        margin-top: 8px;
+    }
+
+    .pill {
+        font-size: 11px;
+        padding: 4px 8px;
+        border-radius: 999px;
+        border: 1px solid rgba(154,164,198,.6);
+        background: rgba(5,8,20,.9);
+        color: var(--muted);
+    }
+
+    .pill-accent {
+        border-color: rgba(30,144,255,.8);
+        color: var(--accent-soft);
+    }
+
+    .pill-warning {
+        border-color: rgba(255,193,7,.8);
+        color: var(--warning);
+    }
+
+    .pill-success {
+        border-color: rgba(76,175,80,.8);
+        color: var(--success);
+    }
+
+    .pill-danger {
+        border-color: rgba(255,75,75,.8);
+        color: var(--danger);
+    }
+
+    .footer {
+        padding: 8px 18px 12px;
+        font-size: 11px;
+        color: var(--muted);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .party-button {
+        font-size: 11px;
+        padding: 4px 10px;
+        border-radius: 999px;
+        border: 1px solid rgba(30,144,255,.7);
+        background: rgba(5,8,20,.9);
+        color: var(--accent-soft);
+        cursor: pointer;
+    }
+</style>
+</head>
+
+<body>
+
+<div class="dashboard">
+
+    <div class="thin-blue-line"></div>
+
+    <div class="header">
+        <div class="header-left">
+            <div class="badge"><span>GMP</span></div>
+
+            <div class="title-block">
+                <h1>Kev's Retirement Dashboard</h1>
+                <p>Greater Manchester Police · Retirement 1 June 2028</p>
+            </div>
+        </div>
+
+        <div class="header-right">
+            <div class="clock" id="clock"></div>
+            <div class="date" id="date"></div>
+            <div class="greeting" id="greeting"></div>
+        </div>
+    </div>
+
+    <div class="content">
+
+        <!-- LEFT SIDE -->
+
+        <div class="card">
+
+            <div class="card-header">
+                <div class="card-title">Career Progress</div>
+                <div class="card-icon">👮‍♂️</div>
+            </div>
+
+            <div class="ring-container">
+
+                <svg class="ring-svg" viewBox="0 0 140 140">
+
+                    <circle cx="70" cy="70" r="54"
+                        stroke="#111633"
+                        stroke-width="10"
+                        fill="none"/>
+
+                    <circle id="ring"
+                        cx="70"
+                        cy="70"
+                        r="54"
+                        stroke="#1e90ff"
+                        stroke-width="10"
+                        stroke-linecap="round"
+                        fill="none"
+                        stroke-dasharray="339.292"
+                        stroke-dashoffset="339.292"/>
+
+                    <text id="ring-percent"
+                        x="70"
+                        y="68"
+                        text-anchor="middle"
+                        fill="#e6ecff"
+                        font-size="20"
+                        font-weight="700">0%</text>
+
+                    <text id="ring-label"
+                        x="70"
+                        y="88"
+                        text-anchor="middle"
+                        fill="#9aa4c6"
+                        font-size="11">
+                        SERVICE COMPLETED
+                    </text>
+
+                </svg>
+
+                <div class="ring-labels">
+
+                    <div class="ring-main" id="career-main"></div>
+                    <div class="ring-sub" id="career-sub"></div>
+
+                    <div class="progress-bar">
+                        <div class="progress-fill" id="progress-fill"></div>
+                    </div>
+
+                    <div class="stats-grid">
+
+                        <div>
+                            <div class="stat-label">Time Served</div>
+                            <div class="stat-value stat-success" id="time-served"></div>
+                        </div>
+
+                        <div>
+                            <div class="stat-label">Time Remaining</div>
+                            <div class="stat-value stat-danger" id="time-remaining"></div>
+                        </div>
+
+                        <div>
+                            <div class="stat-label">Completed</div>
+                            <div class="stat-value stat-highlight" id="percent-completed"></div>
+                        </div>
+
+                        <div>
+                            <div class="stat-label">Remaining</div>
+                            <div class="stat-value stat-warning" id="percent-remaining"></div>
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+            <div class="pill-row">
+                <div class="pill pill-accent" id="retirement-days"></div>
+                <div class="pill pill-warning" id="retirement-hours"></div>
+                <div class="pill pill-success" id="retirement-mins"></div>
+                <div class="pill pill-danger" id="retirement-secs"></div>
+            </div>
+
+            <div class="pill-row">
+                <div class="pill pill-accent" id="weekly-quote"></div>
+            </div>
+
+        </div>
+
+<!-- RIGHT SIDE -->
+
+        <div class="card">
+
+            <div class="card-header">
+                <div class="card-title">Payday · Status</div>
+                <div class="card-icon">💷</div>
+            </div>
+
+            <div class="pill-row">
+                <div class="pill pill-accent" id="payday-next"></div>
+                <div class="pill pill-warning" id="payday-days"></div>
+                <div class="pill pill-success" id="payday-hours"></div>
+                <div class="pill pill-danger" id="payday-mins"></div>
+            </div>
+
+            <div class="pill-row">
+                <div class="pill pill-success" id="motivation"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+<script>
+const careerStart = new Date(1998, 5, 1, 8, 0, 0);
+const careerEnd = new Date(2028, 5, 1, 8, 0, 0);
+
+const weeklyQuotes = [
+    "Stay sharp. Stay safe.",
+    "Another week closer to the finish line.",
+    "Thin blue line - thick patience.",
+    "You've done harder weeks than this.",
+    "Every day is one step closer.",
+    "Retirement is loading... slowly but surely.",
+    "Experience is your superpower.",
+    "You're not tired - you're seasoned."
+];
+
+function pad(n) {
+    return n.toString().padStart(2, "0");
+}
+
+function formatDate(d) {
+    return d.toLocaleDateString("en-GB", {
+        weekday: "short",
+        year: "numeric",
+        month: "short",
+        day: "numeric"
+    });
+}
+
+function diffParts(ms) {
+    let totalSeconds = Math.floor(ms / 1000);
+
+    const seconds = totalSeconds % 60;
+    totalSeconds = Math.floor(totalSeconds / 60);
+
+    const minutes = totalSeconds % 60;
+    totalSeconds = Math.floor(totalSeconds / 60);
+
+    const hours = totalSeconds % 24;
+    let totalDays = Math.floor(totalSeconds / 24);
+
+    const years = Math.floor(totalDays / 365.25);
+    totalDays -= Math.floor(years * 365.25);
+
+    const months = Math.floor(totalDays / 30.4375);
+    totalDays -= Math.floor(months * 30.4375);
+
+    const days = totalDays;
+
+    return {
+        years,
+        months,
+        days,
+        hours,
+        minutes,
+        seconds
+    };
+}
+
+function getISOWeek(date) {
+    const tmp = new Date(date.getTime());
+
+    tmp.setHours(0, 0, 0, 0);
+    tmp.setDate(tmp.getDate() + 4 - (tmp.getDay() || 7));
+
+    const yearStart = new Date(tmp.getFullYear(), 0, 1);
+
+    return Math.ceil((((tmp - yearStart) / 86400000) + 1) / 7);
+}
+
+function nextPayday(now) {
+
+    const year = now.getFullYear();
+    const month = now.getMonth();
+
+    let payday = new Date(year, month, 15, 0, 0, 0);
+
+    if (now > payday) {
+        payday = new Date(year, month + 1, 15, 0, 0, 0);
+    }
+
+    return payday;
+}
+
+function update() {
+
+    const now = new Date();
+
+    // CLOCK
+
+    document.getElementById("clock").textContent =
+        `${pad(now.getHours())}:${pad(now.getMinutes())}:${pad(now.getSeconds())}`;
+
+    document.getElementById("date").textContent =
+        formatDate(now);
+
+    // GREETING
+
+    const hour = now.getHours();
+
+    let greet = "Hello Kev.";
+
+    if (hour < 6) {
+        greet = "Burning the midnight oil, Kev.";
+    }
+    else if (hour < 12) {
+        greet = "Good morning, Kev.";
+    }
+    else if (hour < 18) {
+        greet = "Good afternoon, Kev.";
+    }
+    else {
+        greet = "Good evening, Kev.";
+    }
+
+    document.getElementById("greeting").textContent = greet;
+
+    // CAREER PROGRESS
+
+    const totalMs = careerEnd - careerStart;
+    const elapsedMs = Math.max(0, now - careerStart);
+    const remainingMs = Math.max(0, careerEnd - now);
+
+    const pct = Math.min(100, (elapsedMs / totalMs) * 100);
+    const pctRemaining = 100 - pct;
+
+    const ring = document.getElementById("ring");
+
+    const circumference = 2 * Math.PI * 54;
+    const offset = circumference * (1 - pct / 100);
+
+    ring.style.strokeDasharray = circumference.toFixed(3);
+    ring.style.strokeDashoffset = offset.toFixed(3);
+
+    document.getElementById("ring-percent").textContent =
+        `${pct.toFixed(1)}%`;
+
+    document.getElementById("progress-fill").style.width =
+        `${pct.toFixed(1)}%`;
+
+    const servedParts = diffParts(elapsedMs);
+    const remainingParts = diffParts(remainingMs);
+
+    document.getElementById("career-main").textContent =
+        `${pct.toFixed(1)}% of Service Completed`;
+
+    document.getElementById("career-sub").textContent =
+        `Service Start: 01 Jun 1998 · Service End: 01 Jun 2028`;
+
+    document.getElementById("time-served").textContent =
+        `${servedParts.years}y ${servedParts.months}m ${servedParts.days}d ${servedParts.hours}h ${servedParts.minutes}m ${servedParts.seconds}s`;
+
+    document.getElementById("time-remaining").textContent =
+        `${remainingParts.years}y ${remainingParts.months}m ${remainingParts.days}d ${remainingParts.hours}h ${remainingParts.minutes}m ${remainingParts.seconds}s`;
+
+    document.getElementById("percent-completed").textContent =
+        `${pct.toFixed(2)}% completed`;
+
+   document.getElementById("percent-remaining").textContent =
+`${pctRemaining.toFixed(2)}% remaining`;
+
+    // RETIREMENT COUNTDOWN
+
+  const remainingDays = Math.floor(remainingMs / 86400000);
+const remainingWeeks = Math.floor(remainingDays / 7);
+const remainingHours = Math.floor(remainingMs / 3600000);
+const remainingMinutes = Math.floor(remainingMs / 60000);
+const remainingSeconds = Math.floor(remainingMs / 1000);
+
+    document.getElementById("retirement-days").textContent =
+    `Retirement in ${remainingDays} days`;
+
+const weeksElement = document.getElementById("retirement-weeks");
+
+if (weeksElement) {weeksElement.textContent = `${remainingWeeks} weeks left`;
+}
+
+document.getElementById("retirement-hours").textContent =
+    `${remainingHours} hours left`;
+
+document.getElementById("retirement-mins").textContent =
+    `${remainingMinutes} minutes left`;
+
+document.getElementById("retirement-secs").textContent =
+    `${remainingSeconds} seconds left`;
+
+    // WEEKLY QUOTE
+
+    const weekNumber = getISOWeek(now);
+
+    const quote =
+        weeklyQuotes[weekNumber % weeklyQuotes.length];
+
+    document.getElementById("weekly-quote").textContent =
+        quote;
+
+    // PAYDAY
+
+    const nextPd = nextPayday(now);
+    const pdMs = nextPd - now;
+
+    document.getElementById("payday-next").textContent =
+        `Next payday: ${nextPd.toLocaleDateString("en-GB")}`;
+
+    document.getElementById("payday-days").textContent =
+        `${Math.floor(pdMs / 86400000)} days`;
+
+    document.getElementById("payday-hours").textContent =
+        `${Math.floor(pdMs / 3600000)} hours`;
+
+    document.getElementById("payday-mins").textContent =
+        `${Math.floor(pdMs / 60000)} minutes`;
+
+    // MOTIVATION
+
+    let motivation = "Another week closer, Kev.";
+
+    if (pct > 90) motivation = "Final stretch now.";
+    if (pct > 95) motivation = "You can almost taste the brew.";
+    if (pct >= 99.5) motivation = "Last lap now.";
+
+    document.getElementById("motivation").textContent =
+        motivation;
+
+    // PARTY MODE
+
+    if (partyMode) {
+        document.body.style.background =
+            "radial-gradient(circle at top, #1e90ff 0%, #050814 45%, #02030a 100%)";
+    } else {
+        document.body.style.background =
+            "radial-gradient(circle at top, #111633 0%, #050814 55%, #02030a 100%)";
+    }
+}
+
+let partyMode = false;
+
+const partyButton = document.getElementById("party-btn");
+
+if (partyButton) {
+
+    partyButton.addEventListener("click", () => {
+
+        partyMode = !partyMode;
+
+        partyButton.textContent =
+            partyMode
+                ? "Party Mode: ON"
+                : "Party Mode";
+
+    });
+
+}
+
+update();
+setInterval(update, 1000);
+
+</script>
+
+</body>
+</html>
