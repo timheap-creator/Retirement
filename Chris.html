@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Retirement Dashboard</title>
+    <style>
+        :root {
+            --bg-color: #050b14;
+            --card-bg: #091322;
+            --border-color: #112540;
+            --accent-blue: #38bdf8;
+            --accent-green: #34d399;
+            --accent-yellow: #fbbf24;
+            --accent-orange: #f97316;
+            --accent-purple: #a855f7;
+            --accent-red: #f43f5e;
+            --text-main: #ffffff;
+            --text-muted: #64748b;
+        }
+
+        body {
+            font-family: system-ui, -apple-system, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            margin: 0;
+            padding: 24px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            box-sizing: border-box;
+        }
+
+        .dashboard {
+            width: 100%;
+            max-width: 800px;
+            background: var(--card-bg);
+            border: 2px solid var(--border-color);
+            border-radius: 12px;
+            padding: 30px;
+            box-shadow: 0 0 30px rgba(56, 189, 248, 0.1);
+        }
+
+        .header {
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 20px;
+            margin-bottom: 24px;
+        }
+
+        .header h1 {
+            margin: 0;
+            font-size: 1.8rem;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+        }
+
+        .header p {
+            margin: 6px 0 0 0;
+            font-size: 0.9rem;
+            color: var(--text-muted);
+        }
+
+        .progress-section {
+            margin-bottom: 30px;
+        }
+
+        .hero-percentage {
+            font-size: 3.5rem;
+            font-weight: 800;
+            line-height: 1;
+            margin-bottom: 6px;
+            background: linear-gradient(90deg, var(--accent-blue), var(--accent-green));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .progress-label {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .bar-bg {
+            background: #112540;
+            height: 12px;
+            border-radius: 6px;
+            margin: 16px 0 0 0;
+            overflow: hidden;
+        }
+
+        .bar-fill {
+            background: linear-gradient(90deg, var(--accent-blue), var(--accent-green));
+            height: 100%;
+            width: 0%;
+            transition: width 0.4s ease;
+        }
+
+        /* Separate Countdown Grid Panels */
+        .pill-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+        }
+
+        @media (max-width: 600px) {
+            .pill-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+        @media (max-width: 400px) {
+            .pill-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .pill {
+            background: #0f172a;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .pill-title {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .pill-value {
+            font-size: 1.4rem;
+            font-weight: bold;
+        }
+
+        /* Distinct Color Coding for Each Separate Metric */
+        .pill-months .pill-value { color: var(--accent-purple); }
+        .pill-weeks .pill-value { color: var(--accent-orange); }
+        .pill-days .pill-value { color: var(--accent-blue); }
+        .pill-hours .pill-value { color: var(--accent-yellow); }
+        .pill-minutes .pill-value { color: var(--accent-green); }
+        .pill-seconds .pill-value { color: var(--accent-red); }
+    </style>
+</head>
+<body>
+
+<div class="dashboard">
+    <div class="header">
+        <h1 id="officer-name">OFFICER DASHBOARD</h1>
+        <p id="service-dates">Calculated Service Timeline</p>
+    </div>
+
+    <div class="progress-section">
+        <div class="hero-percentage" id="hero-pct">0.0%</div>
+        <div class="progress-label">of Career Completed</div>
+        <div class="bar-bg">
+            <div class="bar-fill" id="bar-fill"></div>
+        </div>
+    </div>
+
+    <!-- SEPARATE INDEPENDENT COUNTDOWNS -->
+    <div class="pill-grid">
+        <div class="pill pill-months">
+            <span class="pill-title">Months Left</span>
+            <span class="pill-value" id="val-months">0</span>
+        </div>
+        <div class="pill pill-weeks">
+            <span class="pill-title">Weeks Left</span>
+            <span class="pill-value" id="val-weeks">0</span>
+        </div>
+        <div class="pill pill-days">
+            <span class="pill-title">Days Left</span>
+            <span class="pill-value" id="val-days">0</span>
+        </div>
+        <div class="pill pill-hours">
+            <span class="pill-title">Hours Left</span>
+            <span class="pill-value" id="val-hours">0</span>
+        </div>
+        <div class="pill pill-minutes">
+            <span class="pill-title">Minutes Left</span>
+            <span class="pill-value" id="val-minutes">0</span>
+        </div>
+        <div class="pill pill-seconds">
+            <span class="pill-title">Seconds Left</span>
+            <span class="pill-value" id="val-seconds">0</span>
+        </div>
+    </div>
+</div>
+
+<script>
+    // ==========================================
+    // ⚙️ EDIT PROFILE VALUES HERE (OPTION A)
+    // ==========================================
+    const OFFICER_CONFIG = {
+        name: "Chris",           // Change name inside quotes
+        startDate: "2001-06-01",       // Use format: YYYY-MM-DD
+        retirementDate: "2032-04-23"   // Use format: YYYY-MM-DD
+    };
+
+    // Apply Static Configuration Content Directly
+    document.getElementById('officer-name').textContent = `${OFFICER_CONFIG.name}'s RETIREMENT DASHBOARD`;
+    
+    const startObj = new Date(OFFICER_CONFIG.startDate);
+    const endObj = new Date(OFFICER_CONFIG.retirementDate);
+    const startString = startObj.toLocaleDateString(undefined, { day: 'numeric', month: 'short', year: 'numeric' });
+    const endString = endObj.toLocaleDateString(undefined, { day: 'numeric', month: 'short', year: 'numeric' });
+    document.getElementById('service-dates').textContent = `Service Window: ${startString} to ${endString}`;
+
+    function runDashboardCalculations() {
+        const start = new Date(OFFICER_CONFIG.startDate + 'T00:00:00');
+        const end = new Date(OFFICER_CONFIG.retirementDate + 'T00:00:00');
+        const now = new Date();
+
+        const totalWindow = end - start;
+        const totalServed = now - start;
+        const totalRemaining = end - now;
+
+        // Guard rule if retirement target has arrived
+        if (totalRemaining <= 0) {
+            document.getElementById('hero-pct').textContent = "100.0%";
+            document.getElementById('bar-fill').style.width = "100%";
+            document.getElementById('val-months').textContent = "0";
+            document.getElementById('val-weeks').textContent = "0";
+            document.getElementById('val-days').textContent = "0";
+            document.getElementById('val-hours').textContent = "0";
+            document.getElementById('val-minutes').textContent = "0";
+            document.getElementById('val-seconds').textContent = "0";
+            return;
+        }
+
+        // Percentage completed calculations
+        const pctCompleted = Math.max(0, (totalServed / totalWindow) * 100);
+        document.getElementById('hero-pct').textContent = `${pctCompleted.toFixed(1)}%`;
+        document.getElementById('bar-fill').style.width = `${pctCompleted}%`;
+
+        // Absolute Separate Milestone Conversions
+        const totalSecondsLeft = Math.floor(totalRemaining / 1000);
+        const totalMinutesLeft = Math.floor(totalRemaining / (1000 * 60));
+        const totalHoursLeft = Math.floor(totalRemaining / (1000 * 60 * 60));
+        const totalDaysLeft = Math.floor(totalRemaining / (1000 * 60 * 60 * 24));
+        const totalWeeksLeft = Math.floor(totalRemaining / (1000 * 60 * 60 * 24 * 7));
+        
+        // Approximate monthly calculation for total remaining layout representation
+        const totalMonthsLeft = Math.floor(totalRemaining / (1000 * 60 * 60 * 24 * 30.4375));
+
+        // Display individual calculations separated cleanly
+        document.getElementById('val-months').textContent = totalMonthsLeft.toLocaleString();
+        document.getElementById('val-weeks').textContent = totalWeeksLeft.toLocaleString();
+        document.getElementById('val-days').textContent = totalDaysLeft.toLocaleString();
+        document.getElementById('val-hours').textContent = totalHoursLeft.toLocaleString();
+        document.getElementById('val-minutes').textContent = totalMinutesLeft.toLocaleString();
+        document.getElementById('val-seconds').textContent = totalSecondsLeft.toLocaleString();
+    }
+
+    // Initialize execution intervals
+    runDashboardCalculations();
+    setInterval(runDashboardCalculations, 1000);
+</script>
+
+</body>
+</html>
